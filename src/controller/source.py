@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import numpy as np
 import json
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def transform_countries_data(raw_path, processed_dir="data/processed"):
         {
             "name": country.get("name", {}).get("common"),
             "region": country.get("region"),
-            "subregion": country.get("subregion"),
+            "subregion": country.get("subregion"),  # will be None if missing
             "population": country.get("population"),
             "area": country.get("area"),
         }
@@ -44,13 +45,22 @@ def transform_countries_data(raw_path, processed_dir="data/processed"):
     # Clean: remove rows with missing population or area
     df = df.dropna(subset=["population", "area"])
 
-    # Calculate population density
+    # Derived metrics
     df["population_density"] = df["population"] / df["area"]
+    df["log_population"] = np.log(df["population"])
+
+    # Regional totals for percentages
+    df["region_population_total"] = df.groupby("region")["population"].transform("sum")
+    df["region_area_total"] = df.groupby("region")["area"].transform("sum")
+
+    df["population_pct_of_region"] = df["population"] / df["region_population_total"]
+    df["area_pct_of_region"] = df["area"] / df["region_area_total"]
 
     # Aggregate by region
     region_summary = df.groupby("region").agg(
         total_population=pd.NamedAgg(column="population", aggfunc="sum"),
         avg_density=pd.NamedAgg(column="population_density", aggfunc="mean"),
+        total_area=pd.NamedAgg(column="area", aggfunc="sum"),
         country_count=pd.NamedAgg(column="name", aggfunc="count")
     ).reset_index()
 
@@ -66,4 +76,5 @@ def transform_countries_data(raw_path, processed_dir="data/processed"):
     print(f"✅ Region summary saved to {summary_path}")
 
     return df, region_summary
+
 
