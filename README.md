@@ -1,6 +1,6 @@
 # global-demographics-dashboard
 ETL pipeline for country demographic data using the REST Countries API.
-Automatically extracts, cleans, and aggregates population, area, and density data for all countries, producing both country-level and region-level datasets ready for visualization in dashboards like Power BI or Tableau.
+Automatically extracts, cleans, and aggregates population, area, and density data for all countries, producing both country-level and region-level datasets stored in a PostgreSQL database. Data is ready for visualization in dashboards like Power BI or Tableau.
 
 Key Features:
 

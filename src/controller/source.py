@@ -9,8 +9,7 @@ def extract_countries_data(api_url, raw_dir="data/raw"):
     Path(raw_dir).mkdir(parents=True, exist_ok=True)
 
     # API URL (only requesting needed fields)
-    url = "https://restcountries.com/v3.1/all?fields=name,region,subregion,population,area"
-    response = requests.get(url)
+    response = requests.get(api_url)
     response.raise_for_status()
 
     # Save raw JSON to file
